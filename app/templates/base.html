@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Jacario - Modern Real-time Chat Application{% endblock %}">
+    <meta name="author" content="Jacario Team">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <title>{% block title %}Jacario - Modern Chat Experience{% endblock %}</title>
+    
+    <style>
+        /* CSS Variables for Theme System */
+        :root {
+            /* Light Theme Colors */
+            --primary-50: #f0f9ff;
+            --primary-100: #e0f2fe;
+            --primary-500: #0ea5e9;
+            --primary-600: #0284c7;
+            --primary-700: #0369a1;
+            
+            --accent-400: #e879f9;
+            --accent-500: #d946ef;
+            --accent-600: #c026d3;
+            
+            --neutral-50: #fafafa;
+            --neutral-100: #f5f5f5;
+            --neutral-200: #e5e5e5;
+            --neutral-400: #a3a3a3;
+            --neutral-500: #737373;
+            --neutral-700: #404040;
+            --neutral-800: #262626;
+            --neutral-900: #171717;
+            
+            --bg-primary: linear-gradient(135deg, #fafafa 0%, #ffffff 50%, #f0f9ff 100%);
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --bg-nav: rgba(255, 255, 255, 0.85);
+            --text-primary: #171717;
+            --text-secondary: #737373;
+            --border-color: rgba(229, 229, 229, 0.6);
+            --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.05);
+            --shadow-heavy: 0 20px 25px rgba(0, 0, 0, 0.1);
+            --glow-primary: 0 0 20px rgba(14, 165, 233, 0.3);
+        }
+
+        [data-theme="dark"] {
+            /* Dark Theme Colors */
+            --bg-primary: linear-gradient(135deg, #0a0a0a 0%, #171717 50%, #262626 100%);
+            --bg-card: rgba(38, 38, 38, 0.8);
+            --bg-nav: rgba(23, 23, 23, 0.9);
+            --text-primary: #fafafa;
+            --text-secondary: #a3a3a3;
+            --border-color: rgba(64, 64, 64, 0.6);
+            --shadow-light: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.2);
+            --shadow-heavy: 0 20px 25px rgba(0, 0, 0, 0.4);
+            --glow-primary: 0 0 20px rgba(14, 165, 233, 0.5);
+        }
+
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Background Effects */
+        .bg-effects {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bg-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            opacity: 0.1;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .bg-orb:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(45deg, var(--primary-500), var(--accent-400));
+            top: -10%;
+            right: -10%;
+            animation-delay: 0s;
+        }
+
+        .bg-orb:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(45deg, var(--accent-500), var(--primary-600));
+            bottom: -15%;
+            left: -15%;
+            animation-delay: 2s;
+        }
+
+        .bg-orb:nth-child(3) {
+            width: 250px;
+            height: 250px;
+            background: linear-gradient(45deg, var(--primary-400), var(--accent-600));
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 4s;
+            animation-duration: 12s;
+        }
+
+        /* Navigation Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: var(--bg-nav);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            box-shadow: var(--shadow-medium);
+            background: var(--bg-nav);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 70px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .nav-brand:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-logo {
+            position: relative;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-medium);
+            transition: all 0.3s ease;
+        }
+
+        .nav-logo:hover {
+            box-shadow: var(--glow-primary);
+            transform: scale(1.05);
+        }
+
+        .nav-logo i {
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .nav-logo::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            right: -3px;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-400);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .nav-brand-text h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-600), var(--accent-600));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .nav-brand-text p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin: -2px 0 0 0;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link:hover {
+            background: var(--bg-card);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-light);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
+            color: white;
+            box-shadow: var(--glow-primary);
+        }
+
+        /* User Menu */
+        .user-menu {
+            position: relative;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-500), var(--accent-500));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .user-avatar:hover {
+            border-color: var(--primary-500);
+            box-shadow: var(--glow-primary);
+            transform: scale(1.05);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: var(--shadow-heavy);
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .user-dropdown.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: var(--primary-50);
+            color: var(--primary-700);
+        }
+
+        [data-theme="dark"] .dropdown-item:hover {
+            background: rgba(14, 165, 233, 0.1);
+            color: var(--primary-400);
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            width: 50px;
+            height: 26px;
+            background: var(--neutral-200);
+            border-radius: 13px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            outline: none;
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-light);
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background: var(--primary-600);
+        }
+
+        [data-theme="dark"] .theme-toggle::before {
+            transform: translateX(24px);
+            background: var(--neutral-100);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-btn:hover {
+            background: var(--bg-card);
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: var(--bg-nav);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            transform: translateY(-100%);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .mobile-menu.show {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mobile-nav-links {
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-top: 70px;
+            min-height: calc(100vh - 70px);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Flash Messages */
+        .flash-messages {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1001;
+            max-width: 400px;
+        }
+
+        .flash-message {
+            background: var(--bg-card);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-heavy);
+            animation: slideInRight 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flash-message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-500);
+        }
+
+        .flash-message.success::before {
+            background: #10b981;
+        }
+
+        .flash-message.error::before {
+            background: #ef4444;
+        }
+
+        .flash-message.warning::before {
+            background: #f59e0b;
+        }
+
+        .flash-close {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .flash-close:hover {
+            color: var(--text-primary);
+        }
+
+        /* Animations */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-20px) rotate(1deg); }
+            66% { transform: translateY(10px) rotate(-1deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .nav-brand-text {
+                display: none;
+            }
+
+            .flash-messages {
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nav-container {
+                height: 60px;
+            }
+
+            .main-content {
+                margin-top: 60px;
+            }
+
+            .mobile-menu {
+                top: 60px;
+            }
+
+            .flash-messages {
+                top: 70px;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--neutral-100);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--neutral-400);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neutral-500);
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-track {
+            background: var(--neutral-800);
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: var(--neutral-600);
+        }
+
+        [data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: var(--neutral-500);
+        }
+    </style>
+    
+    <!-- Custom CSS Files -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    <!-- Background Effects -->
+    <div class="bg-effects">
+        <div class="bg-orb"></div>
+        <div class="bg-orb"></div>
+        <div class="bg-orb"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <!-- Brand -->
+            <a href="{{ url_for('chat.index') if current_user.is_authenticated else url_for('auth.login') }}" class="nav-brand">
+                <div class="nav-logo">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <div class="nav-brand-text">
+                    <h1>Jacario</h1>
+                    <p>Modern Chat</p>
+                </div>
+            </a>
+
+            <!-- Desktop Navigation -->
+            <ul class="nav-links">
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('chat.index') }}" class="nav-link {% if request.endpoint == 'chat.index' %}active{% endif %}">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a></li>
+                    <li><a href="{{ url_for('chat.rooms') }}" class="nav-link {% if request.endpoint == 'chat.rooms' %}active{% endif %}">
+                        <i class="fas fa-door-open"></i> Rooms
+                    </a></li>
+                    {% if current_user.role.name == 'admin' %}
+                        <li><a href="{{ url_for('admin.dashboard') }}" class="nav-link {% if 'admin' in request.endpoint %}active{% endif %}">
+                            <i class="fas fa-cog"></i> Admin
+                        </a></li>
+                    {% endif %}
+                    
+                    <!-- Theme Toggle -->
+                    <li><button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode"></button></li>
+                    
+                    <!-- User Menu -->
+                    <li class="user-menu">
+                        <div class="user-avatar" onclick="toggleUserMenu()">
+                            {{ current_user.username[0].upper() }}
+                        </div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a href="{{ url_for('auth.profile') }}" class="dropdown-item">
+                                <i class="fas fa-user"></i> Profile
+                            </a>
+                            <a href="{{ url_for('auth.settings') }}" class="dropdown-item">
+                                <i class="fas fa-cog"></i> Settings
+                            </a>
+                            <a href="{{ url_for('auth.logout') }}" class="dropdown-item">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </li>
+                {% else %}
+                    <li><a href="{{ url_for('auth.login') }}" class="nav-link {% if request.endpoint == 'auth.login' %}active{% endif %}">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a></li>
+                    <li><a href="{{ url_for('auth.register') }}" class="nav-link {% if request.endpoint == 'auth.register' %}active{% endif %}">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a></li>
+                    <li><button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode"></button></li>
+                {% endif %}
+            </ul>
+
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">
+                <i class="fas fa-bars" id="mobileMenuIcon"></i>
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div class="mobile-nav-links">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('chat.index') }}" class="nav-link">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('chat.rooms') }}" class="nav-link">
+                        <i class="fas fa-door-open"></i> Rooms
+                    </a>
+                    {% if current_user.role.name == 'admin' %}
+                        <a href="{{ url_for('admin.dashboard') }}" class="nav-link">
+                            <i class="fas fa-cog"></i> Admin
+                        </a>
+                    {% endif %}
+                    <a href="{{ url_for('auth.profile') }}" class="nav-link">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    <a href="{{ url_for('auth.settings') }}" class="nav-link">
+                        <i class="fas fa-cog"></i> Settings
+                    </a>
+                    <a href="{{ url_for('auth.logout') }}" class="nav-link">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="nav-link">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                    <a href="{{ url_for('auth.register') }}" class="nav-link">
+                        <i class="fas fa-user-plus"></i> Register
+                    </a>
+                {% endif %}
+                <div style="padding: 1rem 0; display: flex; align-items: center; gap: 1rem;">
+                    <span>Dark Mode</span>
+                    <button class="theme-toggle" onclick="toggleTheme()"></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="flash-messages" id="flashMessages">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-message {{ category }}" data-category="{{ category }}">
+                        {{ message }}
+                        <button class="flash-close" onclick="closeFlashMessage(this)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Advanced JavaScript -->
+    <script>
+        // Theme Management
+        const themeManager = {
+            init() {
+                const savedTheme = localStorage.getItem('jacario-theme') || 'light';
+                this.setTheme(savedTheme);
+                this.bindEvents();
+            },
+
+            setTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('jacario-theme', theme);
+                
+                // Update theme toggle visual state
+                const toggles = document.querySelectorAll('.theme-toggle');
+                toggles.forEach(toggle => {
+                    toggle.setAttribute('data-theme', theme);
+                });
+            },
+
+            toggle() {
+                const currentTheme = document.documentElement.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                this.setTheme(newTheme);
+                
+                // Add smooth transition effect
+                document.body.style.transition = 'all 0.3s ease';
+                setTimeout(() => {
+                    document.body.style.transition = '';
+                }, 300);
+            },
+
+            bindEvents() {
+                // Listen for system theme changes
+                const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                mediaQuery.addListener((e) => {
+                    if (!localStorage.getItem('jacario-theme')) {
+                        this.setTheme(e.matches ? 'dark' : 'light');
+                    }
+                });
+            }
+        };
+
+        // Navigation Management
+        const navManager = {
+            init() {
+                this.bindScrollEffect();
+                this.bindClickOutside();
+            },
+
+            bindScrollEffect() {
+                const navbar = document.getElementById('navbar');
+                let lastScrollY = window.scrollY;
+
+                window.addEventListener('scroll', () => {
+                    const currentScrollY = window.scrollY;
+                    
+                    if (currentScrollY > 50) {
+                        navbar.classList.add('scrolled');
+                    } else {
+                        navbar.classList.remove('scrolled');
+                    }
+
+                    // Hide/show navbar on scroll
+                    if (currentScrollY > lastScrollY && currentScrollY > 100) {
+                        navbar.style.transform = 'translateY(-100%)';
+                    } else {
+                        navbar.style.transform = 'translateY(0)';
+                    }
+
+                    lastScrollY = currentScrollY;
+                });
+            },
+
+            bindClickOutside() {
+                document.addEventListener('click', (e) => {
+                    // Close user dropdown
+                    const userMenu = document.querySelector('.user-menu');
+                    const userDropdown = document.getElementById('userDropdown');
+                    if (userMenu && !userMenu.contains(e.target)) {
+                        userDropdown.classList.remove('show');
+                    }
+
+                    // Close mobile menu
+                    const mobileMenu = document.getElementById('mobileMenu');
+                    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+                    if (mobileMenu && !mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                        this.closeMobileMenu();
+                    }
+                });
+            },
+
+            closeMobileMenu() {
+                const mobileMenu = document.getElementById('mobileMenu');
+                const mobileMenuIcon = document.getElementById('mobileMenuIcon');
+                mobileMenu.classList.remove('show');
+                mobileMenuIcon.className = 'fas fa-bars';
+            }
+        };
+
+        // Flash Message Management
+        const flashManager = {
+            init() {
+                this.autoHideMessages();
+                this.bindCloseEvents();
+            },
+
+            autoHideMessages() {
+                const messages = document.querySelectorAll('.flash-message');
+                messages.forEach((message, index) => {
+                    setTimeout(() => {
+                        this.hideMessage(message);
+                    }, 5000 + (index * 500)); // Stagger hiding
+                });
+            },
+
+            hideMessage(message) {
+                message.style.transform = 'translateX(100%)';
+                message.style.opacity = '0';
+                setTimeout(() => {
+                    message.remove();
+                }, 300);
+            },
+
+            bindCloseEvents() {
+                const closeButtons = document.querySelectorAll('.flash-close');
+                closeButtons.forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.hideMessage(button.parentElement);
+                    });
+                });
+            },
+
+            show(message, category = 'info') {
+                const flashContainer = document.getElementById('flashMessages');
+                const flashElement = document.createElement('div');
+                flashElement.className = `flash-message ${category}`;
+                flashElement.innerHTML = `
+                    ${message}
+                    <button class="flash-close" onclick="flashManager.hideMessage(this.parentElement)">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                
+                flashContainer.appendChild(flashElement);
+                
+                // Auto hide after 5 seconds
+                setTimeout(() => {
+                    if (flashElement.parentElement) {
+                        this.hideMessage(flashElement);
+                    }
+                }, 5000);
+            }
+        };
+
+        // Utility Functions
+        function toggleTheme() {
+            themeManager.toggle();
+        }
+
+        function toggleUserMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const mobileMenuIcon = document.getElementById('mobileMenuIcon');
+            
+            mobileMenu.classList.toggle('show');
+            
+            if (mobileMenu.classList.contains('show')) {
+                mobileMenuIcon.className = 'fas fa-times';
+            } else {
+                mobileMenuIcon.className = 'fas fa-bars';
+            }
+        }
+
+        function closeFlashMessage(button) {
+            flashManager.hideMessage(button.parentElement);
+        }
+
+        // Performance Optimization
+        const performanceManager = {
+            init() {
+                this.optimizeAnimations();
+                this.lazyLoadImages();
+                this.prefetchLinks();
+            },
+
+            optimizeAnimations() {
+                // Reduce animations on slower devices
+                const isSlowDevice = navigator.hardwareConcurrency < 4 || 
+                                   /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                
+                if (isSlowDevice) {
+                    document.documentElement.style.setProperty('--animation-duration', '0.1s');
+                }
+            },
+
+            lazyLoadImages() {
+                const images = document.querySelectorAll('img[data-src]');
+                const imageObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                            imageObserver.unobserve(img);
+                        }
+                    });
+                });
+
+                images.forEach(img => imageObserver.observe(img));
+            },
+
+            prefetchLinks() {
+                // Prefetch important pages on hover
+                const importantLinks = document.querySelectorAll('a[href^="/chat"], a[href^="/rooms"]');
+                importantLinks.forEach(link => {
+                    link.addEventListener('mouseenter', () => {
+                        const linkTag = document.createElement('link');
+                        linkTag.rel = 'prefetch';
+                        linkTag.href = link.href;
+                        document.head.appendChild(linkTag);
+                    }, { once: true });
+                });
+            }
+        };
+
+        // WebSocket Connection Manager
+        const wsManager = {
+            socket: null,
+            reconnectAttempts: 0,
+            maxReconnectAttempts: 5,
+            reconnectDelay: 1000,
+
+            init() {
+                if (typeof io !== 'undefined' && window.location.pathname.includes('/chat')) {
+                    this.connect();
+                }
+            },
+
+            connect() {
+                try {
+                    this.socket = io();
+                    this.bindEvents();
+                } catch (error) {
+                    console.error('WebSocket connection failed:', error);
+                }
+            },
+
+            bindEvents() {
+                if (!this.socket) return;
+
+                this.socket.on('connect', () => {
+                    console.log('Connected to server');
+                    this.reconnectAttempts = 0;
+                    flashManager.show('Connected to chat server', 'success');
+                });
+
+                this.socket.on('disconnect', () => {
+                    console.log('Disconnected from server');
+                    flashManager.show('Disconnected from server', 'warning');
+                    this.handleReconnect();
+                });
+
+                this.socket.on('connect_error', (error) => {
+                    console.error('Connection error:', error);
+                    flashManager.show('Connection error. Retrying...', 'error');
+                    this.handleReconnect();
+                });
+            },
+
+            handleReconnect() {
+                if (this.reconnectAttempts < this.maxReconnectAttempts) {
+                    this.reconnectAttempts++;
+                    setTimeout(() => {
+                        console.log(`Reconnection attempt ${this.reconnectAttempts}`);
+                        this.connect();
+                    }, this.reconnectDelay * this.reconnectAttempts);
+                } else {
+                    flashManager.show('Unable to connect to server. Please refresh the page.', 'error');
+                }
+            }
+        };
+
+        // Keyboard Shortcuts
+        const shortcutManager = {
+            init() {
+                document.addEventListener('keydown', this.handleKeydown.bind(this));
+            },
+
+            handleKeydown(e) {
+                // Ctrl/Cmd + K for search (if implemented)
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    this.focusSearch();
+                }
+
+                // Ctrl/Cmd + / for help (if implemented)
+                if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+                    e.preventDefault();
+                    this.showHelp();
+                }
+
+                // Escape to close modals/dropdowns
+                if (e.key === 'Escape') {
+                    this.closeAllModals();
+                }
+
+                // Alt + T for theme toggle
+                if (e.altKey && e.key === 't') {
+                    e.preventDefault();
+                    toggleTheme();
+                }
+            },
+
+            focusSearch() {
+                const searchInput = document.querySelector('input[type="search"], .search-input');
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            },
+
+            showHelp() {
+                // Implementation for help modal if exists
+                console.log('Help shortcuts would be shown here');
+            },
+
+            closeAllModals() {
+                // Close user dropdown
+                const userDropdown = document.getElementById('userDropdown');
+                if (userDropdown) {
+                    userDropdown.classList.remove('show');
+                }
+
+                // Close mobile menu
+                navManager.closeMobileMenu();
+
+                // Close any modals
+                const modals = document.querySelectorAll('.modal.show, .popup.show');
+                modals.forEach(modal => {
+                    modal.classList.remove('show');
+                });
+            }
+        };
+
+        // Accessibility Manager
+        const a11yManager = {
+            init() {
+                this.setupFocusTrapping();
+                this.setupAriaLabels();
+                this.setupKeyboardNavigation();
+            },
+
+            setupFocusTrapping() {
+                const modals = document.querySelectorAll('.modal, .dropdown');
+                modals.forEach(modal => {
+                    const focusableElements = modal.querySelectorAll(
+                        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+                    );
+                    
+                    if (focusableElements.length > 0) {
+                        const firstElement = focusableElements[0];
+                        const lastElement = focusableElements[focusableElements.length - 1];
+
+                        modal.addEventListener('keydown', (e) => {
+                            if (e.key === 'Tab') {
+                                if (e.shiftKey && document.activeElement === firstElement) {
+                                    e.preventDefault();
+                                    lastElement.focus();
+                                } else if (!e.shiftKey && document.activeElement === lastElement) {
+                                    e.preventDefault();
+                                    firstElement.focus();
+                                }
+                            }
+                        });
+                    }
+                });
+            },
+
+            setupAriaLabels() {
+                // Add aria-labels to buttons without text
+                const iconButtons = document.querySelectorAll('button:not([aria-label]) i.fa');
+                iconButtons.forEach(icon => {
+                    const button = icon.closest('button');
+                    if (button && !button.textContent.trim()) {
+                        const iconClass = icon.className;
+                        let label = 'Button';
+                        
+                        if (iconClass.includes('fa-bars')) label = 'Open menu';
+                        else if (iconClass.includes('fa-times')) label = 'Close';
+                        else if (iconClass.includes('fa-search')) label = 'Search';
+                        else if (iconClass.includes('fa-user')) label = 'User menu';
+                        
+                        button.setAttribute('aria-label', label);
+                    }
+                });
+            },
+
+            setupKeyboardNavigation() {
+                // Enable keyboard navigation for custom elements
+                const customButtons = document.querySelectorAll('.user-avatar, .theme-toggle');
+                customButtons.forEach(button => {
+                    if (!button.hasAttribute('tabindex')) {
+                        button.setAttribute('tabindex', '0');
+                    }
+                    
+                    button.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            button.click();
+                        }
+                    });
+                });
+            }
+        };
+
+        // Error Handler
+        const errorManager = {
+            init() {
+                window.addEventListener('error', this.handleError.bind(this));
+                window.addEventListener('unhandledrejection', this.handlePromiseRejection.bind(this));
+            },
+
+            handleError(event) {
+                console.error('JavaScript Error:', event.error);
+                
+                // Don't show error messages for script loading failures from external sources
+                if (event.filename && !event.filename.includes(window.location.origin)) {
+                    return;
+                }
+
+                flashManager.show('An unexpected error occurred. Please refresh the page.', 'error');
+            },
+
+            handlePromiseRejection(event) {
+                console.error('Unhandled Promise Rejection:', event.reason);
+                
+                // Only show user-facing message for critical errors
+                if (event.reason && event.reason.name !== 'AbortError') {
+                    flashManager.show('A network error occurred. Please try again.', 'error');
+                }
+            }
+        };
+
+        // PWA Support
+        const pwaManager = {
+            init() {
+                this.registerServiceWorker();
+                this.handleInstallPrompt();
+                this.handleNetworkStatus();
+            },
+
+            registerServiceWorker() {
+                if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/sw.js')
+                        .then(registration => {
+                            console.log('SW registered successfully');
+                        })
+                        .catch(error => {
+                            console.log('SW registration failed');
+                        });
+                }
+            },
+
+            handleInstallPrompt() {
+                let deferredPrompt;
+                
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    deferredPrompt = e;
+                    
+                    // Show install button if desired
+                    const installBtn = document.getElementById('installBtn');
+                    if (installBtn) {
+                        installBtn.style.display = 'block';
+                        installBtn.addEventListener('click', () => {
+                            deferredPrompt.prompt();
+                            deferredPrompt.userChoice.then((choiceResult) => {
+                                deferredPrompt = null;
+                                installBtn.style.display = 'none';
+                            });
+                        });
+                    }
+                });
+            },
+
+            handleNetworkStatus() {
+                const updateNetworkStatus = () => {
+                    if (navigator.onLine) {
+                        flashManager.show('Back online!', 'success');
+                    } else {
+                        flashManager.show('You are offline. Some features may not work.', 'warning');
+                    }
+                };
+
+                window.addEventListener('online', updateNetworkStatus);
+                window.addEventListener('offline', updateNetworkStatus);
+            }
+        };
+
+        // Initialize everything when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            themeManager.init();
+            navManager.init();
+            flashManager.init();
+            performanceManager.init();
+            wsManager.init();
+            shortcutManager.init();
+            a11yManager.init();
+            errorManager.init();
+            pwaManager.init();
+
+            // Add loading animation removal
+            const loader = document.querySelector('.page-loader');
+            if (loader) {
+                setTimeout(() => {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.remove(), 300);
+                }, 500);
+            }
+
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Add page transition effect
+            document.body.style.opacity = '0';
+            requestAnimationFrame(() => {
+                document.body.style.transition = 'opacity 0.3s ease';
+                document.body.style.opacity = '1';
+            });
+        });
+
+        // Handle page visibility changes
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                // Page is hidden - pause non-essential operations
+                console.log('Page hidden - pausing operations');
+            } else {
+                // Page is visible - resume operations
+                console.log('Page visible - resuming operations');
+                
+                // Reconnect WebSocket if needed
+                if (wsManager.socket && !wsManager.socket.connected) {
+                    wsManager.connect();
+                }
+            }
+        });
+
+        // Export managers for use in other scripts
+        window.JacarioApp = {
+            theme: themeManager,
+            nav: navManager,
+            flash: flashManager,
+            performance: performanceManager,
+            ws: wsManager,
+            shortcuts: shortcutManager,
+            a11y: a11yManager,
+            error: errorManager,
+            pwa: pwaManager
+        };
+    </script>
+    
+    <!-- Additional Scripts -->
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

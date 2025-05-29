@@ -1,0 +1,41 @@
+chatterflask/
+├── app/
+│   ├── __init__.py           # Flask application factory
+│   ├── config.py             # Application configuration
+│   ├── models/               # Database models
+│   │   ├── __init__.py
+│   │   ├── user.py           # User model
+│   │   ├── message.py        # Message model
+│   │   └── room.py           # Room model
+│   ├── routes/               # Application routes
+│   │   ├── __init__.py
+│   │   ├── auth.py           # Authentication routes
+│   │   ├── chat.py           # Chat routes
+│   │   └── admin.py          # Admin routes
+│   ├── sockets/              # Socket.IO event handlers
+│   │   ├── __init__.py
+│   │   └── events.py         # Socket event handlers
+│   ├── static/               # Static files
+│   │   ├── css/              # CSS files
+│   │   │   ├── main.css
+│   │   │   └── dark-mode.css
+│   │   ├── js/               # JavaScript files
+│   │   │   ├── chat.js
+│   │   │   ├── auth.js
+│   │   │   └── dark-mode.js
+│   │   └── images/           # Image files
+│   └── templates/            # HTML templates
+│       ├── base.html         # Base template
+│       ├── auth/             # Authentication templates
+│       │   ├── login.html
+│       │   └── register.html
+│       ├── chat/             # Chat templates
+│       │   ├── index.html
+│       │   └── room.html
+│       └── admin/            # Admin templates
+│           └── dashboard.html
+├── migrations/               # Database migrations
+├── .env                      # Environment variables
+├── .gitignore                # Git ignore file
+├── requirements.txt          # Project dependencies
+└── run.py                    # Application entry point
